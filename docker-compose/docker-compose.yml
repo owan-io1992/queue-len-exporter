@@ -1,0 +1,9 @@
+services:
+  redis:
+    image: redis:8
+    ports:
+     - 6379:6379
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+     - 15672:15672

@@ -1,0 +1,10 @@
+# syntax=docker/dockerfile:1
+
+from python:3.10-bookworm
+
+USER root
+RUN pip install pip --upgrade
+COPY nbl_exporter/requirements.txt /requirements.txt
+RUN pip install -r /requirements.txt
+
+ENTRYPOINT [ "bash" ]

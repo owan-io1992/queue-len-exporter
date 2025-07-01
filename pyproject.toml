@@ -1,0 +1,24 @@
+[project]
+name = "queue-len-exporter"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = "==3.13.5"
+dependencies = [
+    "art>=6.5",
+    "fastapi>=0.115.14",
+    "flask>=3.1.1",
+    "httpx>=0.28.1",
+    "prometheus-client>=0.22.1",
+    "psutil>=7.0.0",
+    "pyyaml>=6.0.2",
+    "redis[hiredis]>=6.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.12.1",
+]
+
+[tool.uv]
+default-groups = "all"
