@@ -1,7 +1,6 @@
 from . import metrics
 from prometheus_client import generate_latest, REGISTRY
-from fastapi import Response, Request
-from prometheus_client import generate_latest, REGISTRY
+from fastapi import Request
 from starlette.responses import PlainTextResponse
 
 import logging

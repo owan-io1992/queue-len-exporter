@@ -22,3 +22,7 @@ dev = [
 
 [tool.uv]
 default-groups = "all"
+
+[tool.ruff]
+lint.ignore = ["F403", "F405"]
+

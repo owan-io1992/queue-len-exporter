@@ -19,7 +19,7 @@ REGISTRY.unregister(prometheus_client.PLATFORM_COLLECTOR)
 REGISTRY.unregister(prometheus_client.PROCESS_COLLECTOR)
 
 # config log
-if log_file == None:
+if log_file is None:
     logging.basicConfig(
         level=log_level, format="%(asctime)s %(levelname)-8s %(name)s %(message)s"
     )

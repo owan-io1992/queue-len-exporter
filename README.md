@@ -6,7 +6,13 @@ this is a prometheus exporter for monitor queue length
 
 ## rabbitMQ
 
-# start eporter
+# CI test
+```bash
+uv run ruff format
+uv run ruff check
+```
+
+# start exporter
 
 ```bash
 uv run uvicorn queue_len_exporter.main:app --host 0.0.0.0 --port 8080 --reload
