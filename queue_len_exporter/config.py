@@ -13,7 +13,3 @@ rabbitmq_queue_pattern = "^test.+"
 # schema support redis/sentinel
 redis_url = "redis://127.0.0.1:6379/0"
 redis_key = "mylist"
-
-# use for /scrape/redis_hlen
-mux_servers = {"mux-01": "127.0.0.1"}  # name: ip
-mux_redis = "redis://127.0.0.1:6379/0"
