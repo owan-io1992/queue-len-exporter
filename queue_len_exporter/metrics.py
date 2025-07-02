@@ -10,10 +10,9 @@ from prometheus_client import Gauge
 qle_cpu_usage_percent = Gauge(
     name="qle_cpu_usage_percent",
     documentation="all cpu core average usage percent",
-    labelnames=[""],
 )
 qle_mem_usage_percent = Gauge(
-    name="qle_mem_usage_percent", documentation="mem usage percent", labelnames=[""]
+    name="qle_mem_usage_percent", documentation="mem usage percent"
 )
 qle_rabbitmq_queue_len = Gauge(
     name="qle_rabbitmq_queue_len",
@@ -26,5 +25,5 @@ qle_redis_llen = Gauge(
 qle_redis_hlen = Gauge(
     name="qle_redis_hlen",
     documentation="get redis hlen",
-    labelnames=["key", "redis", "filter", "filter_alias"],
+    labelnames=["redis", "key"],
 )

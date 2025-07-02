@@ -11,22 +11,18 @@ CONTENT_TYPE_LATEST = str("text/plain; charset=utf-8")
 
 
 def register_routes(app):
-    def parameter_parser(request: Request):
-        parameters = request.query_params.get("target").split(",")
-        config = dict(s.split("=") for s in parameters)
-        logger.info(f"endpoint: scrape/rediskey_hlen, config={config}")
-        return config
-
     @app.get("/cpu_usage_percent")
     async def cpu_usage_percent():
+        """
+        Exposes CPU usage percentage as a Prometheus metric.
+        This endpoint retrieves the current CPU usage and updates the 'qle_cpu_usage_percent' gauge.
+        """
         from .data_source import cpu
 
         metric_librarie = ["qle_cpu_usage_percent"]  # use to filter output
-        # cleanup old metric
-        metrics.qle_cpu_usage_percent.clear()
 
         # get metric
-        metrics.qle_cpu_usage_percent.labels().set(cpu.cpu_percent(interval=None))
+        metrics.qle_cpu_usage_percent.set(cpu.cpu_percent(interval=None))
 
         return PlainTextResponse(
             generate_latest(REGISTRY.restricted_registry(metric_librarie)),
@@ -35,14 +31,16 @@ def register_routes(app):
 
     @app.get("/mem_usage_percent")
     async def mem_usage_percent():
+        """
+        Exposes memory usage percentage as a Prometheus metric.
+        This endpoint retrieves the current memory usage and updates the 'qle_mem_usage_percent' gauge.
+        """
         from .data_source import mem
 
         metric_librarie = ["qle_mem_usage_percent"]  # use to filter output
-        # cleanup old metric
-        metrics.qle_mem_usage_percent.clear()
 
         # get metric
-        metrics.qle_mem_usage_percent.labels().set(mem.mem_percent())
+        metrics.qle_mem_usage_percent.set(mem.mem_percent())
 
         return PlainTextResponse(
             generate_latest(REGISTRY.restricted_registry(metric_librarie)),
@@ -51,14 +49,32 @@ def register_routes(app):
 
     @app.get("/rabbitmq_queue_len")
     async def rabbitmq_queue_len():
+        """
+        Exposes RabbitMQ queue lengths as Prometheus metrics.
+        This endpoint queries the RabbitMQ management API for queue lengths
+        and updates the 'qle_rabbitmq_queue_len' gauge for each queue.
+        """
         from .data_source import rabbitmq
+        from .config import (
+            rabbitmq_host,
+            rabbitmq_port,
+            rabbitmq_user,
+            rabbitmq_pass,
+            rabbitmq_queue_pattern,
+        )
 
         metric_librarie = ["qle_rabbitmq_queue_len"]  # use to filter output
         # cleanup old metric
         metrics.qle_rabbitmq_queue_len.clear()
 
         # get metric
-        for k, v in rabbitmq.queue_len().items():
+        for k, v in rabbitmq.queue_len(
+            rabbitmq_host,
+            rabbitmq_port,
+            rabbitmq_user,
+            rabbitmq_pass,
+            rabbitmq_queue_pattern,
+        ).items():
             metrics.qle_rabbitmq_queue_len.labels(name=k).set(v)
 
         return PlainTextResponse(
@@ -68,8 +84,13 @@ def register_routes(app):
 
     @app.get("/redis_llen")
     async def redis_llen():
+        """
+        Exposes Redis list length (LLEN) as a Prometheus metric.
+        This endpoint retrieves the length of a configured Redis list
+        and updates the 'qle_redis_llen' gauge.
+        """
         from .data_source import redis
-        from config import redis_url, redis_key
+        from .config import redis_url, redis_key
 
         metric_librarie = ["qle_redis_llen"]  # use to filter output
         # cleanup old metric
@@ -87,7 +108,11 @@ def register_routes(app):
 
     @app.get("/scrape/redis_hlen")
     async def scrape_redis_hlen(request: Request):
-        config = parameter_parser(request)
+        """
+        Exposes Redis hash length (HLEN) as a Prometheus metric with filtering.
+        This endpoint retrieves the count of elements in a Redis hash that match a specific filter.
+        """
+        params = request.query_params
 
         from .data_source import redis
 
@@ -97,20 +122,26 @@ def register_routes(app):
 
         # update metric
         metrics.qle_redis_hlen.labels(
-            redis=config["redis"],
-            key=config["key"],
-            filter=config["filter"],
-            filter_alias=config["filter_alias"],
-        ).set(
-            redis.hlen(
-                config["redis"], config["key"], config["filter"], config["no_cache"]
-            )
-        )
+            redis=params["redis"],
+            key=params["key"],
+        ).set(redis.hlen(params["redis"], params["key"]))
         return PlainTextResponse(
             generate_latest(REGISTRY.restricted_registry(metric_librarie)),
             media_type=CONTENT_TYPE_LATEST,
         )
 
     @app.get("/health")
-    async def root():
+    async def health():
+        """
+        Health check endpoint.
+        Returns a simple "Success" message to indicate the application is running.
+        """
         return PlainTextResponse("Success", media_type="text/plain")
+
+    @app.get("/test")
+    async def test(request: Request):
+        """
+        get all query parameter and return parameter
+        """
+        # parameters = request.query_params
+        return request.query_params

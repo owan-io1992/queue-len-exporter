@@ -71,20 +71,13 @@ def list_len(redis_url, key_name):
 hash_data = {}
 
 
-def hlen(redis_url, key_name, filter, no_cache):
-    global hash_data
-    redis_length = 0
-    if no_cache == "true":
-        logger.info("hlen: config no_cache, pull key")
-        with get_redis_connection(redis_url) as r:
-            hash_data[f"{redis_url}_{key_name}"] = r.hgetall(key_name)
+def hlen(redis_url, key_name):
+    key_len = 0
+    # if no_cache == "true":
+    #     logger.info("hlen: config no_cache, pull key")
+    with get_redis_connection(redis_url) as r:
+        key_len = r.hlen(key_name)
 
-    for k, v in hash_data[f"{redis_url}_{key_name}"].items():
-        if v.decode() == filter:
-            redis_length += 1
+    logger.info(f"hlen: redis_url={redis_url}, key_len={key_len}")
 
-    logger.info(
-        f"hlen: redis_url={redis_url}, filter={filter}, redis_length={redis_length}"
-    )
-
-    return redis_length
+    return key_len
